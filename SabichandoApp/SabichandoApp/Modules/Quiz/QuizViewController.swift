@@ -70,8 +70,11 @@ class QuizViewController: UIViewController {
         
         for (index, option) in question.options.enumerated() {
             if index < optionButtons.count {
-                optionButtons[index].setTitle(option, for: .normal)
-                optionButtons[index].isHidden = false
+                let button = optionButtons[index]
+                button.setTitle(option, for: .normal)
+                button.isHidden = false
+                button.isEnabled = true
+                button.backgroundColor = .systemBlue
             }
         }
         for i in question.options.count..<optionButtons.count {
@@ -83,12 +86,25 @@ class QuizViewController: UIViewController {
         let index = sender.tag
         let isCorrect = viewModel.isCorrectAnswer(index)
         
-        print(isCorrect ? "Acertou!" : "Errou!")
+        // Linha de codigo que serve para desativar os botoes para nao haver varios cliques
+        optionButtons.forEach { $0.isEnabled = false }
         
-        if viewModel.moveToNextQuestion() {
-            showCurrentQuestion()
+        
+        if isCorrect {
+            sender.backgroundColor = .systemGreen
         } else {
-            print("Quiz Finalizado!")
+            sender.backgroundColor = .systemRed
+            
+            let correctIndex = viewModel.currentQuestion.correctAnswerIndex
+            optionButtons[correctIndex].backgroundColor = .systemGreen
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if self.viewModel.moveToNextQuestion() {
+                self.showCurrentQuestion()
+            } else  {
+                print ("Quiz finalizado!")
+            }
         }
     }
 }
