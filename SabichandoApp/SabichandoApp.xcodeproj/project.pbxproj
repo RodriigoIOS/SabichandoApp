@@ -16,6 +16,7 @@
 		5B0907C72DAD6C070073F5A4 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0907C62DAD6C070073F5A4 /* Colors.swift */; };
 		5B0FB96F2DAF4E5600575BCA /* Question.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0FB96E2DAF4E5600575BCA /* Question.swift */; };
 		5B0FB9722DAF4EA900575BCA /* QuizViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0FB9712DAF4EA900575BCA /* QuizViewModel.swift */; };
+		5B9C08F22DB2061E002A0C30 /* ResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9C08F12DB20613002A0C30 /* ResultViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		5B0907C62DAD6C070073F5A4 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		5B0FB96E2DAF4E5600575BCA /* Question.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Question.swift; sourceTree = "<group>"; };
 		5B0FB9712DAF4EA900575BCA /* QuizViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizViewModel.swift; sourceTree = "<group>"; };
+		5B9C08F12DB20613002A0C30 /* ResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +159,7 @@
 		5B0907CC2DAD6C660073F5A4 /* Quiz */ = {
 			isa = PBXGroup;
 			children = (
+				5B9C08F12DB20613002A0C30 /* ResultViewController.swift */,
 				5B0FB9702DAF4E9300575BCA /* ViewModel */,
 				5B0FB96D2DAF4E4200575BCA /* Model */,
 				5B0907AD2DAD5D170073F5A4 /* QuizViewController.swift */,
@@ -253,6 +256,7 @@
 				5B0907BF2DAD68BA0073F5A4 /* LoginViewController.swift in Sources */,
 				5B0907C72DAD6C070073F5A4 /* Colors.swift in Sources */,
 				5B0FB9722DAF4EA900575BCA /* QuizViewModel.swift in Sources */,
+				5B9C08F22DB2061E002A0C30 /* ResultViewController.swift in Sources */,
 				5B0907AE2DAD5D170073F5A4 /* QuizViewController.swift in Sources */,
 				5B0FB96F2DAF4E5600575BCA /* Question.swift in Sources */,
 				5B0907AA2DAD5D170073F5A4 /* AppDelegate.swift in Sources */,

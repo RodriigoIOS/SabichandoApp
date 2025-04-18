@@ -70,25 +70,52 @@ class QuizViewController: UIViewController {
         
         for (index, option) in question.options.enumerated() {
             if index < optionButtons.count {
-                optionButtons[index].setTitle(option, for: .normal)
-                optionButtons[index].isHidden = false
+                let button = optionButtons[index]
+                button.setTitle(option, for: .normal)
+                button.isHidden = false
+                button.isEnabled = true
+                button.backgroundColor = .systemBlue
             }
         }
         for i in question.options.count..<optionButtons.count {
             optionButtons[i].isHidden = true
         }
     }
-    
+      
     @objc private func optionSelected(_ sender: UIButton){
         let index = sender.tag
         let isCorrect = viewModel.isCorrectAnswer(index)
         
-        print(isCorrect ? "Acertou!" : "Errou!")
+        // Linha de codigo que serve para desativar os botoes para nao haver varios cliques
+        optionButtons.forEach { $0.isEnabled = false }
         
-        if viewModel.moveToNextQuestion() {
-            showCurrentQuestion()
+        
+        if isCorrect {
+            sender.backgroundColor = .systemGreen
         } else {
-            print("Quiz Finalizado!")
+            sender.backgroundColor = .systemRed
+            
+            let correctIndex = viewModel.currentQuestion.correctAnswerIndex
+            optionButtons[correctIndex].backgroundColor = .systemGreen
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {[weak self] in
+            guard let self = self else {return}
+            
+            if self.viewModel.moveToNextQuestion() {
+                self.showCurrentQuestion()
+            } else  {
+                let resultVC = ResultViewController(
+                    totalQuestions: self.viewModel.totalQuestions,
+                    correctAnswers: self.viewModel.correctAnswersCount
+                )
+                resultVC.modalPresentationStyle = .fullScreen
+                resultVC.onPlayAgain = { [weak self] in
+                    self?.viewModel.resetQuiz()
+                    self?.showCurrentQuestion()
+                }
+                self.present(resultVC, animated: true)
+            }
         }
     }
 }
