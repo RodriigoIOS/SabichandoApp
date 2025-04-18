@@ -11,7 +11,11 @@ final class QuizViewModel {
     
     private(set) var questions: [Question] = []
     private(set) var currentQuestionIndex: Int = 0
-    
+    var correctAnswersCount = 0
+    var totalQuestions: Int {
+        return questions.count
+    }
+
     var currentQuestion: Question {
         return questions[currentQuestionIndex]
     }
@@ -46,6 +50,13 @@ final class QuizViewModel {
     }
     
     func isCorrectAnswer(_ index: Int) -> Bool {
-        return index == currentQuestion.correctAnswerIndex
+        let isCorrect = currentQuestion.correctAnswerIndex == index
+        if isCorrect { correctAnswersCount += 1 }
+        return isCorrect
+    }
+    
+    func resetQuiz() {
+        currentQuestionIndex = 0
+        correctAnswersCount = 0
     }
 }

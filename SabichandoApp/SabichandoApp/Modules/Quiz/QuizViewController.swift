@@ -81,7 +81,7 @@ class QuizViewController: UIViewController {
             optionButtons[i].isHidden = true
         }
     }
-    
+      
     @objc private func optionSelected(_ sender: UIButton){
         let index = sender.tag
         let isCorrect = viewModel.isCorrectAnswer(index)
@@ -99,11 +99,22 @@ class QuizViewController: UIViewController {
             optionButtons[correctIndex].backgroundColor = .systemGreen
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {[weak self] in
+            guard let self = self else {return}
+            
             if self.viewModel.moveToNextQuestion() {
                 self.showCurrentQuestion()
             } else  {
-                print ("Quiz finalizado!")
+                let resultVC = ResultViewController(
+                    totalQuestions: self.viewModel.totalQuestions,
+                    correctAnswers: self.viewModel.correctAnswersCount
+                )
+                resultVC.modalPresentationStyle = .fullScreen
+                resultVC.onPlayAgain = { [weak self] in
+                    self?.viewModel.resetQuiz()
+                    self?.showCurrentQuestion()
+                }
+                self.present(resultVC, animated: true)
             }
         }
     }
