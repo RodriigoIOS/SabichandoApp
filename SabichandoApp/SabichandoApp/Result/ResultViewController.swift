@@ -69,7 +69,13 @@ final class ResultViewController: UIViewController {
     
     private func showResult() {
         let percentage = Int((Double(correctAnswers) / Double(totalQuestions)) * 100)
-        resultLabel.text = "Você acertou \(correctAnswers) de \(totalQuestions) perguntas.\n\nDesempenho: \(percentage)%"
+        
+        if percentage > 70 {
+            resultLabel.text = "Você acertou \(correctAnswers) de \(totalQuestions) perguntas.\n\nCarai, tu é o bixão, sabo muito: \(percentage)%"
+        }else {
+            resultLabel.text = "Você acertou \(correctAnswers) de \(totalQuestions) perguntas.\n\nTu é burro mano, fez só: \(percentage)%"
+        }
+        
     }
     
     @objc private func playAgainTapped() {
