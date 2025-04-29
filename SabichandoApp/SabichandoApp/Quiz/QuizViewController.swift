@@ -1,121 +1,78 @@
-//
-//  ViewController.swift
-//  SabichandoApp
-//
-//  Created by Rodrigo on 14/04/25.
-//
-
 import UIKit
 
-class QuizViewController: UIViewController {
+final class QuizViewController: UIViewController {
     
-    private let viewModel = QuizViewModel()
-    private var optionButtons: [UIButton] = []
+    private let viewModel: QuizViewModel
     
-    private let questionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Pergunta vai aqui"
-        label.adjustsFontSizeToFitWidth = true
-        label.numberOfLines = 0
-        label.font = UIFont.boldSystemFont(ofSize: 22)
-        label.textAlignment = .center
-        return label
-    }()
+    private let questionLabel = UILabel()
+    private var optionsStackView = UIStackView()
+
+    init(viewModel: QuizViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: .didMoveToNextQuestion, object: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
         setupLayout()
         showCurrentQuestion()
-        // Do any additional setup after loading the view.
     }
     
-    func setupLayout() {
+    private func setupLayout() {
+        questionLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        questionLabel.textAlignment = .center
+        questionLabel.numberOfLines = 0
         
-        //StackView principal
+        optionsStackView.axis = .vertical
+        optionsStackView.spacing = 10
         
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.addArrangedSubview(questionLabel)
+        view.addSubview(questionLabel)
+        view.addSubview(optionsStackView)
         
-        for i in 0..<4 {
-            let button = UIButton(type: .system)
-            button.tag = i
-            button.setTitle("Opção \(i+1)", for: .normal)
-            button.backgroundColor = .systemBlue
-            button.setTitleColor(.white, for: .normal)
-            button.layer.cornerRadius = 10
-            button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
-            button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-            button.addTarget(self, action: #selector(optionSelected(_:)), for: .touchUpInside)
-            stackView.addArrangedSubview(button)
-            optionButtons.append(button)
-        }
-        
-        view.addSubview(stackView)
+        questionLabel.translatesAutoresizingMaskIntoConstraints = false
+        optionsStackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            questionLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
+            questionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            questionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            optionsStackView.topAnchor.constraint(equalTo: questionLabel.bottomAnchor, constant: 40),
+            optionsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            optionsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
     }
     
-    func showCurrentQuestion() {
-        let question = viewModel.currentQuestion
-        questionLabel.text = question.title
+    private func showCurrentQuestion() {
+        guard let question = viewModel.currentQuestion else { return }
+        
+        questionLabel.text = question.question
+        optionsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
         for (index, option) in question.options.enumerated() {
-            if index < optionButtons.count {
-                let button = optionButtons[index]
-                button.setTitle(option, for: .normal)
-                button.isHidden = false
-                button.isEnabled = true
-                button.backgroundColor = .systemBlue
-            }
-        }
-        for i in question.options.count..<optionButtons.count {
-            optionButtons[i].isHidden = true
+            let button = UIButton(type: .system)
+            button.setTitle(option, for: .normal)
+            button.titleLabel?.font = .systemFont(ofSize: 18)
+            button.backgroundColor = .systemGray6
+            button.layer.cornerRadius = 8
+            button.tag = index
+            button.addTarget(self, action: #selector(optionTapped(_:)), for: .touchUpInside)
+            optionsStackView.addArrangedSubview(button)
         }
     }
-      
-    @objc private func optionSelected(_ sender: UIButton){
-        let index = sender.tag
-        let isCorrect = viewModel.isCorrectAnswer(index)
-        
-        // Linha de codigo que serve para desativar os botoes para nao haver varios cliques
-        optionButtons.forEach { $0.isEnabled = false }
-        
-        
-        if isCorrect {
-            sender.backgroundColor = .systemGreen
-        } else {
-            sender.backgroundColor = .systemRed
-            
-            let correctIndex = viewModel.currentQuestion.correctAnswerIndex
-            optionButtons[correctIndex].backgroundColor = .systemGreen
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {[weak self] in
-            guard let self = self else {return}
-            
-            if self.viewModel.moveToNextQuestion() {
-                self.showCurrentQuestion()
-            } else  {
-                let resultVC = ResultViewController(
-                    totalQuestions: self.viewModel.totalQuestions,
-                    correctAnswers: self.viewModel.correctAnswersCount
-                )
-                resultVC.modalPresentationStyle = .fullScreen
-                resultVC.onPlayAgain = { [weak self] in
-                    self?.viewModel.resetQuiz()
-                    self?.showCurrentQuestion()
-                }
-                self.present(resultVC, animated: true)
-            }
-        }
+    
+    @objc private func optionTapped(_ sender: UIButton) {
+        viewModel.optionSelected(at: sender.tag)
+    }
+    
+    @objc private func updateUI() {
+        showCurrentQuestion()
     }
 }

@@ -2,85 +2,69 @@ import UIKit
 
 final class ResultViewController: UIViewController {
     
-    // MARK: - Properties
-    private let totalQuestions: Int
-    private let correctAnswers: Int
-    var onPlayAgain: (() -> Void)?
+    private let viewModel: ResultViewModel
     
-    // MARK: - UI Elements
-    private let resultLabel: UILabel = {
-        let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 28)
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        return label
-    }()
+    private let resultLabel = UILabel()
+    private let playAgainButton = UIButton(type: .system)
     
-    private let playAgainButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Jogar Novamente", for: .normal)
-        button.backgroundColor = .systemGreen
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
-        button.layer.cornerRadius = 10
-        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        return button
-    }()
-    
-    // MARK: - Init
-    init(totalQuestions: Int, correctAnswers: Int) {
-        self.totalQuestions = totalQuestions
-        self.correctAnswers = correctAnswers
+    init(viewModel: ResultViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupLayout()
-        setupActions()
-        showResult()
+        configure()
     }
     
-    // MARK: - Setup
     private func setupLayout() {
-        let stackView = UIStackView(arrangedSubviews: [resultLabel, playAgainButton])
-        stackView.axis = .vertical
-        stackView.spacing = 24
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(resultLabel)
+        view.addSubview(playAgainButton)
         
-        view.addSubview(stackView)
+        resultLabel.translatesAutoresizingMaskIntoConstraints = false
+        playAgainButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            resultLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            resultLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
+            
+            playAgainButton.topAnchor.constraint(equalTo: resultLabel.bottomAnchor, constant: 40),
+            playAgainButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            playAgainButton.widthAnchor.constraint(equalToConstant: 200),
+            playAgainButton.heightAnchor.constraint(equalToConstant: 50)
         ])
-    }
-    
-    private func setupActions() {
-        playAgainButton.addTarget(self, action: #selector(playAgainTapped), for: .touchUpInside)
-    }
-    
-    private func showResult() {
-        let percentage = Int((Double(correctAnswers) / Double(totalQuestions)) * 100)
         
-        if percentage > 70 {
-            resultLabel.text = "Você acertou \(correctAnswers) de \(totalQuestions) perguntas.\n\nCarai, tu é o bixão, sabo muito: \(percentage)%"
-        }else {
-            resultLabel.text = "Você acertou \(correctAnswers) de \(totalQuestions) perguntas.\n\nTu é burro mano, fez só: \(percentage)%"
-        }
+        playAgainButton.addTarget(self, action: #selector(playAgainButtonTapped), for: .touchUpInside)
         
+        resultLabel.font = UIFont.boldSystemFont(ofSize: 28)
+        resultLabel.textAlignment = .center
+        resultLabel.numberOfLines = 0
+        
+        playAgainButton.setTitle("Jogar Novamente", for: .normal)
+        playAgainButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+        playAgainButton.backgroundColor = .systemBlue
+        playAgainButton.tintColor = .white
+        playAgainButton.layer.cornerRadius = 10
     }
     
-    @objc private func playAgainTapped() {
-        dismiss(animated: true) {
-            self.onPlayAgain?()
-        }
+    private func configure() {
+
+        let percentage = Int((Double(viewModel.correctAnswers) / Double(viewModel.totalQuestions)) * 100)
+        
+            if percentage > 70 {
+                resultLabel.text = "Você acertou \(viewModel.correctAnswers) de \(viewModel.totalQuestions) perguntas.\n\nCarai, tu é o bixão, sabo muito: \(percentage)%"
+            }else {
+                resultLabel.text = "Você acertou \(viewModel.correctAnswers) de \(viewModel.totalQuestions) perguntas.\n\nTu é burro mano, fez só: \(percentage)%"
+            }
+    }
+    
+    @objc private func playAgainButtonTapped() {
+        viewModel.playAgainTapped()
     }
 }

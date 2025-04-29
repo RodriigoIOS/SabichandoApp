@@ -6,3 +6,12 @@
 //
 
 import Foundation
+
+final class StartViewModel {
+    var onStartButtonTapped: (() -> Void)?
+    
+    func startButtonTapped() {
+        print("bloco da funcao startButtonTapped recebida")
+        onStartButtonTapped?()
+    }
+}

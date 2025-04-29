@@ -1,62 +1,44 @@
-//
-//  QuizViewModel.swift
-//  SabichandoApp
-//
-//  Created by Rodrigo on 15/04/25.
-//
-
 import Foundation
 
 final class QuizViewModel {
+    private(set) var questions: [Question] = [
+        Question(question: "Qual é a capital do Brasil?", options: ["Rio de Janeiro", "Brasília", "São Paulo", "Salvador"], correctAnswerIndex: 1),
+        Question(question: "Quanto é 2 + 2?", options: ["3", "4", "5", "6"], correctAnswerIndex: 1),
+        Question(question: "Quem descobriu o Brasil?", options: ["Cristóvão Colombo", "Pedro Álvares Cabral", "Dom Pedro I", "Tiradentes"], correctAnswerIndex: 1)
+    ]
     
-    private(set) var questions: [Question] = []
-    private(set) var currentQuestionIndex: Int = 0
-    var correctAnswersCount = 0
-    var totalQuestions: Int {
-        return questions.count
-    }
-
-    var currentQuestion: Question {
+    private(set) var currentQuestionIndex = 0
+    private(set) var correctAnswersCount = 0
+    
+    var onQuizCompleted: ((Int, Int) -> Void)?
+    
+    var currentQuestion: Question? {
+        guard currentQuestionIndex < questions.count else { return nil }
         return questions[currentQuestionIndex]
     }
     
-    init() {
-        loadMockQuestion()
-    }
-    
-    func loadMockQuestion() {
-        questions = [
-            Question(title: "Qual é a capital do Brasil?",
-                     options: ["Rio de Janeiro", "São Paulo", "Brasilia", "Salvador"],
-                     correctAnswerIndex: 2),
-            
-            Question(title: "Quem pintou a Mona Lisa",
-                     options: ["Van Gogh", "Da Vinci", "Picasso", "Michelangelo"],
-                     correctAnswerIndex: 1),
-    
-            Question(title: "Swift é uma linguagem de ...",
-                     options: ["Back-end", "Front-end", "Mobile", "Banco de dados"],
-                     correctAnswerIndex: 2)
-        ]
-    }
-    
-    func moveToNextQuestion() -> Bool {
-        if currentQuestionIndex + 1 < questions.count {
-            currentQuestionIndex += 1
-            return true
-        } else {
-            return false
+    func optionSelected(at index: Int) {
+        guard let question = currentQuestion else { return }
+        
+        if index == question.correctAnswerIndex {
+            correctAnswersCount += 1
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if self.moveToNextQuestion() {
+                NotificationCenter.default.post(name: .didMoveToNextQuestion, object: nil)
+            } else {
+                self.onQuizCompleted?(self.correctAnswersCount, self.questions.count)
+            }
         }
     }
     
-    func isCorrectAnswer(_ index: Int) -> Bool {
-        let isCorrect = currentQuestion.correctAnswerIndex == index
-        if isCorrect { correctAnswersCount += 1 }
-        return isCorrect
+    func moveToNextQuestion() -> Bool {
+        currentQuestionIndex += 1
+        return currentQuestionIndex < questions.count
     }
-    
-    func resetQuiz() {
-        currentQuestionIndex = 0
-        correctAnswersCount = 0
-    }
+}
+
+extension Notification.Name {
+    static let didMoveToNextQuestion = Notification.Name("didMoveToNextQuestion")
 }
