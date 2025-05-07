@@ -9,6 +9,17 @@ import UIKit
 
 class StartViewController: UIViewController {
     
+    let viewModel: StartViewModel
+    
+    init(viewModel: StartViewModel){
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Sabichando v1"
@@ -67,8 +78,7 @@ class StartViewController: UIViewController {
     }
     
     @objc private func startTapped() {
-        let quizVc = QuizViewController()
-        quizVc.modalPresentationStyle = .fullScreen
-        present(quizVc, animated: true)
+        print("Botao foi pressionado com sucesso")
+        viewModel.startButtonTapped()
     }
 }

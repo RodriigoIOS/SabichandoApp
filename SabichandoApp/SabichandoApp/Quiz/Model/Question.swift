@@ -8,7 +8,7 @@
 import Foundation
 
 struct Question {
-    let title: String
+    let question: String
     let options: [String]
     let correctAnswerIndex: Int
 }
