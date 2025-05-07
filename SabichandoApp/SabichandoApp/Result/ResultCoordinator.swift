@@ -6,7 +6,8 @@
 //
 import UIKit
 
-final class ResultCoordinator {
+final class ResultCoordinator: Coordinator {
+    
     var navigationController: UINavigationController
     private let correctAnswers: Int
     private let totalQuestions: Int

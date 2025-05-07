@@ -1,8 +1,9 @@
 
 import UIKit
 
-final class QuizCoordinator {
-    let navigationController: UINavigationController
+final class QuizCoordinator: Coordinator {
+    
+    var navigationController: UINavigationController
     var onQuizCompleted: ((Int, Int) -> Void)?
 
     init(navigationController: UINavigationController) {
@@ -17,6 +18,10 @@ final class QuizCoordinator {
             self?.onQuizCompleted?(correctAnswers, totalQuestions)
         }
         
-        navigationController.pushViewController(viewController, animated: true)
+        print("Antes do push - Stack: \(navigationController.viewControllers.count)")
+//        navigationController.pushViewController(viewController, animated: true)
+        navigationController.setViewControllers([viewController], animated: true)
+
+        print("Depois do push - Stack: \(navigationController.viewControllers.count)")
     }
 }

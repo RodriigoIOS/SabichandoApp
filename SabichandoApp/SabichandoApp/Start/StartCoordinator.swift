@@ -7,9 +7,9 @@
 
 import UIKit
 
-final class StartCoordinator {
+class StartCoordinator: Coordinator {
     
-    let navigationController: UINavigationController
+    var navigationController: UINavigationController
     var onStartQuiz: (() -> Void)?
 
     init(navigationController: UINavigationController) {
@@ -19,12 +19,15 @@ final class StartCoordinator {
     func start() {
         let viewModel = StartViewModel()
         let viewController = StartViewController(viewModel: viewModel)
+        print("🎯 StartCoordinator start chamado - instância: \(Unmanaged.passUnretained(self).toOpaque())")
+
         
         viewModel.onStartButtonTapped = { [weak self] in
-            print("bloco da funcao dentro do StartCoordinator funcionou com sucesso")
+            print("🚀 StartCoordinator recebeu o evento de botão")
             self?.onStartQuiz?()
         }
         
         navigationController.setViewControllers([viewController], animated: false)
+        
     }
 }

@@ -5,10 +5,10 @@ protocol Coordinator {
     func start()
 }
 
-final class AppCoordinator: Coordinator {
-    
-    let window: UIWindow
+class AppCoordinator: Coordinator {
+    var window: UIWindow
     var navigationController: UINavigationController
+    var childCoordinators: [Coordinator] = []
 
     init(window: UIWindow) {
         self.window = window
@@ -16,27 +16,29 @@ final class AppCoordinator: Coordinator {
     }
 
     func start() {
+        let startCoordinator = StartCoordinator(navigationController: navigationController)
+        print("📌 StartCoordinator instância: \(Unmanaged.passUnretained(startCoordinator).toOpaque())")
+
+        startCoordinator.onStartQuiz = {
+            print("Callback do botão Start chegou no AppCoordinator")
+            self.showQuiz()
+        }
+        
+        self.childCoordinators.append(startCoordinator)
+
+        startCoordinator.start()
+
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
-        
-        showStart()
     }
     
-    private func showStart() {
-        let startCoordinator = StartCoordinator(navigationController: navigationController)
-        
-        startCoordinator.onStartQuiz = { [weak self] in
-            print("coordinator recebeu a mensagem e vai mostrar o ShowQuiz")
-            self?.showQuiz()
-        }
-        startCoordinator.start()
-    }
     
-    private func showQuiz() {
+    func showQuiz() {
+        print("🔁 Chamando showQuiz()")
         let quizCoordinator = QuizCoordinator(navigationController: navigationController)
         
-        quizCoordinator.onQuizCompleted = { [weak self] correctAnswers, totalQuestions in
-            self?.showResult(correctAnswers: correctAnswers, totalQuestions: totalQuestions)
+        quizCoordinator.onQuizCompleted = { correctAnswers, totalQuestions in
+            self.showResult(correctAnswers: correctAnswers, totalQuestions: totalQuestions)
         }
         
         quizCoordinator.start()
@@ -49,8 +51,8 @@ final class AppCoordinator: Coordinator {
             totalQuestions: totalQuestions
         )
         
-        resultCoordinator.onPlayAgain = { [weak self] in
-            self?.navigationController.popToRootViewController(animated: true)
+        resultCoordinator.onPlayAgain = {
+            self.navigationController.popToRootViewController(animated: true)
         }
         
         resultCoordinator.start()
